@@ -55,10 +55,28 @@ class Job:
         step = j.steps[0]
         if step["status"] == "success":
             return self.service.get(j.getConnectionId())
-        if step["status"] == "failure":
+        if step["status"] == "failed":
             return False
             
         return self.waitForCredentials(interval, timeout, i)
+
+    def waitForAccounts(self, interval, timeout, i = 0):
+        j = self.service.getJob(self.id)
+
+        time.sleep(interval / 1000)
+
+        if i * (interval / 1000) > timeout:
+            return False
+
+        i += 1
+
+        step = j.steps[1]
+        if step["status"] == "success":
+            return self.service.get(j.getConnectionId())
+        if step["status"] == "failed":
+            return False
+
+        return self.waitForAccounts(interval, timeout, i)
 
     def waitForTransactions(self, interval, timeout, i = 0):
         j = self.service.getJob(self.id)
@@ -73,7 +91,7 @@ class Job:
         step = j.steps[2]
         if step["status"] == "success":
             return self.service.get(j.getConnectionId())
-        if step["status"] == "failure":
+        if step["status"] == "failed":
             return False
             
         return self.waitForTransactions(interval, timeout, i)
@@ -129,8 +147,13 @@ class ConnectionService:
 
         return j
 
-    def update(self, id, password):
-        r = self.session.api.post("users/" + self.user.id + "/connections/" + id, json={password: password})
+    def update(self, id, password, security_code=None, secondary_login_id=None):
+        data = {'password': password}
+        if security_code is not None:
+            data['securityCode'] = security_code
+        if secondary_login_id is not None:
+            data['secondaryLoginId'] = secondary_login_id
+        r = self.session.api.post("users/" + self.user.id + "/connections/" + id, json=data)
 
         j = Job(self)
         j.id = r["id"]
