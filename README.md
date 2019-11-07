@@ -1,3 +1,7 @@
+## Deprecated
+
+This project is deprecated and is no longer maintained. Please use [Go](https://github.com/basiqio/basiq-sdk-golang) or [NodeJS](https://github.com/basiqio/basiq-sdk-nodejs) SDK instead.
+
 # Basiq.io Python SDK
 
 This is the documentation for the Python SDK for Basiq.io API.
